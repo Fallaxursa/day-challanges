@@ -5,15 +5,15 @@ public class DAY12 {
         Scanner input = new Scanner(System.in);
         int i = 0;
         int numb = -1;
-        boolean inputIsValid = true;
+        boolean inputIsValid = false;
         boolean GuessIsValid = false;
 
-        while (inputIsValid == true) {
+        while (inputIsValid == false) {
             System.out.println("enter a number between 0 and 100: ");
             numb = input.nextInt();
 
             if (numb > 0 && numb < 100) {
-                inputIsValid = false;
+                inputIsValid = true;
             }
         }
         while (i < 50) {
