@@ -19,13 +19,15 @@ public class DAY18 {
 
         int ManticoreDistance = AskForNumberInRange("How far away is the manticore? ", 0, 100);
 
-        while (CityHealth > 0 && ManticoreHealth > 0) { //status
+        while (CityHealth >= 0 && ManticoreHealth > 0) { //status
             System.out.println("-----------------------------------------------------------------------");
             System.out.println("STATUS: " + "ROUND: " + Round + " CITY: " + CityHealth + "/15" + " MANTICORE: " + ManticoreHealth + "/10");
 
             CityHealth -=1;
+            System.out.println(ANSI_RED + "the manticore deals 1 damage." + ANSI_RESET);
+            System.out.println("----------------------------");
 
-            if (CityHealth == -1) { //tmp break
+            if (CityHealth <= 0) { //tmp break
                 System.out.println(ANSI_RED + "The city is lost... GAME OVER." + ANSI_RESET);
                 break;
             }
@@ -37,12 +39,12 @@ public class DAY18 {
             int CannonAim = AskForNumberInRange("Where to target? ", 0, 100); //ask target
 
             if (CannonAim == ManticoreDistance) { //aim result
-                System.out.println("You hit the manticore!");
+                System.out.println(ANSI_BLUE + "You hit the manticore!" + ANSI_RESET);
                 ManticoreHealth -= CannonDamage;
             } else if (CannonAim < ManticoreDistance) {
-                System.out.println("You aimed too low");
+                System.out.println(ANSI_RED + "You aimed too low" + ANSI_RESET);
             } else {
-                System.out.println("You over shot");
+                System.out.println(ANSI_YELLOW + "You over shot" + ANSI_RESET);
             }
 
             if (ManticoreHealth <= 0) {
