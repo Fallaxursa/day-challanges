@@ -2,17 +2,32 @@ package Klas_opdrachten;
 
 public class Saesars_Code { //remove the C
     public static void main(String[] args) {
-        String code = "ZORO"; //acii a = 065 through z = 090 IWASRONG it was 101 = 132 LMAOOOOOO
+        String code = "XYZORO"; //acii a = 65 through z = 90
+        int saecarShift = 3;
+        int reset = 26;
 
         for (int i = 0; i < code.length(); i++) {
-            char ch = code.charAt(i);
+            char acii = code.charAt(i);
+            acii -= 'A';
+            acii += saecarShift;
+            acii %= reset;
+            acii += 'A';
+            System.out.print(acii);
 
-            if (ch > 132) {}
-//            if (ch > 065 && ch < 132) { ch += 3; }
+//            if (acii > 90) {
+//                acii -= 26;
+//            }
 
-//            ch += 3; //char starts at 0 so do number and add 1.
-
-            System.out.print(ch);
+//            if (acii == 91) {
+//                acii = 65;
+//            }
+//            else if (acii == 92) {
+//                acii = 66;
+//            }
+//            else if (acii == 93) {
+//                acii = 67;
+//            }
+//            System.out.print(acii);
         }
     }
 }
