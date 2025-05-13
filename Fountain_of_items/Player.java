@@ -1,75 +1,73 @@
 package Fountain_of_items;
 
+import java.util.Scanner;
+
 public class Player {
     private int playerRow = 0;
     private int playerCol = 0;
-    private int mapSize;
-    boolean canMove;
 
-    public int getPlayerCol() {
-        return playerCol;
-    }
+    public int getCol() { return playerCol; }
+    public int getRow() { return playerRow; }
 
-    public int getPlayerRow() {
-        return playerRow;
-    }
-
-    public Player(int mapSize) {
-        this.mapSize = mapSize;
-    }
-
-    public boolean isOnEntrance() {
-        return getPlayerRow() == 0 && getPlayerCol() == 0;
-    }
-
-    public boolean canMove(String direction) {
-        switch (direction.toLowerCase()) {
-            case "north":
-                return playerRow > 0;
-            case "south":
-                return playerRow < mapSize - 1;
-            case "east":
-                return  playerCol < mapSize - 1;
-            case "west":
-                return  playerCol > 0;
-            default:
-                return false;
+    public void move(Direction direction) {
+//        Moves the player without checking if the move is legal
+        switch (direction) {
+            case NORTH:
+                playerRow--;
+                break;
+            case EAST:
+                playerCol++;
+                break;
+            case SOUTH:
+                playerRow++;
+                break;
+            case WEST:
+                playerCol--;
+                break;
         }
+        System.out.println(STR."Moved to: (\{playerRow}, \{playerCol})");
     }
 
-    public void moveNorth() {
-        if (canMove("north")) {
-            playerRow--;
-            System.out.println(STR."Moved to: (\{getPlayerRow()}, \{getPlayerCol()})");
-        } else {
-            System.out.println("you can't continue this way");
-        }
-    }
+    boolean act(Dungeon dungeon, Scanner input) {
+        System.out.print("What do you want to do? ");
 
-    public void moveEast() {
-        if (canMove("east")) {
-            playerCol++;
-            System.out.println(STR."Moved to: (\{getPlayerRow()}, \{getPlayerCol()})");
-        } else {
-            System.out.println("you can't continue this way");
-        }
-    }
+        String act = input.nextLine();
+        try {
+            Direction chosenDirection = Direction.valueOf(act.toUpperCase());
 
-    public void moveSouth() {
-        if (canMove("south")) {
-            playerRow++;
-            System.out.println(STR."Moved to: (\{getPlayerRow()}, \{getPlayerCol()})");
-        } else {
-            System.out.println("you can't continue this way");
-        }
-    }
+            if (dungeon.canMove(this, chosenDirection))
+                move(chosenDirection);
 
-    public void moveWest() {
-        if (canMove("west")) {
-            playerCol--;
-            System.out.println(STR."Moved to: (\{getPlayerRow()}, \{getPlayerCol()})");
-        } else {
-            System.out.println("you can't continue this way");
+        } catch (Exception e) {
+            // DON'T CARE
         }
+
+        Room currentRoom = dungeon.getCurrentRoom(this);
+
+        if (act.equalsIgnoreCase("activate")) {
+            if (currentRoom.getRoomType() == RoomType.FOUNTAIN) {
+                Fountain fountainRoom = (Fountain) currentRoom;
+
+                fountainRoom.activate();
+            }
+        }
+
+        if (act.equalsIgnoreCase("quit")) {
+            System.out.println("quiting game...");
+            return true;
+        }
+//            case "activate":
+//                if (fountain.isInFountainRoom(fountain.getRow(), fountain.getCol())) {
+//                    fountain.activateFountain();
+//                } else {
+//                    System.out.println("You're not in the fountain room.");
+//            } break;
+//            case "quit":
+//                return;
+//            default:
+//                System.out.println("please try again");
+//                break;
+
+        return false;
     }
 }

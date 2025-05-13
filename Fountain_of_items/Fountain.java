@@ -1,31 +1,24 @@
 package Fountain_of_items;
 
-public class Fountain {
-    private int row;
-    private int col;
-    boolean fountainOn;
+public class Fountain extends Room {
+    private boolean activated;
 
-    public Fountain(int col, int row) {
-        this.col = col;
-        this.row = row;
-        this.fountainOn = false;
+    public Fountain() {
+        super(RoomType.FOUNTAIN, "Fountain - you hear water dripping in this room. The fountain is here!");
+        this.activated = false;
     }
 
-    public boolean activateFountain() {
-        if (!fountainOn) {
-            fountainOn = true;
+    public void activate() {
+        if (!activated) {
+            activated = true;
             System.out.println("You hear water flowing from within the fountain. It has been reactivated!");
-        } else {
-            System.out.println("You have already activated the fountain");
+            return;
         }
-        return fountainOn;
+
+        System.out.println("You have already activated the fountain");
     }
 
-    public boolean isInFountainRoom(int playerRow, int playerCol) {
-        return this.row == playerRow && this.col == playerCol;
+    public boolean isActivated() {
+        return activated;
     }
-
-    public boolean isFountainOn() { return fountainOn; }
-    public int getRow() { return row; }
-    public int getCol() { return col; }
 }
