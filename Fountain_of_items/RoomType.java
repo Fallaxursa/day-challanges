@@ -4,5 +4,6 @@ public enum RoomType {
     EMPTY,
     ENTRANCE,
     PIT,
-    FOUNTAIN
+    FOUNTAIN,
+    MAELSTROM
 }

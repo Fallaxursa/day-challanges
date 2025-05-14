@@ -28,6 +28,11 @@ public class Player {
         System.out.println(STR."Moved to: (\{playerRow}, \{playerCol})");
     }
 
+    public void setPosition(int row, int col) {
+        this.playerRow = row;
+        this.playerCol = col;
+    }
+
     boolean act(Dungeon dungeon, Scanner input) {
         System.out.print("What do you want to do? ");
 
@@ -56,17 +61,6 @@ public class Player {
             System.out.println("quiting game...");
             return true;
         }
-//            case "activate":
-//                if (fountain.isInFountainRoom(fountain.getRow(), fountain.getCol())) {
-//                    fountain.activateFountain();
-//                } else {
-//                    System.out.println("You're not in the fountain room.");
-//            } break;
-//            case "quit":
-//                return;
-//            default:
-//                System.out.println("please try again");
-//                break;
 
         return false;
     }
