@@ -22,6 +22,8 @@ public class FountainOfObjects {
 
             dungeon.preAct(player);
 
+            dungeon.printRooms();
+
             if (player.act(dungeon, input)) {
                 // Quitting game
                 break;

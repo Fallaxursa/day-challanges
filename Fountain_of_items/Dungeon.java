@@ -1,5 +1,6 @@
 package Fountain_of_items;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -9,10 +10,11 @@ public class Dungeon {
     Room[][] rooms;
     int size;
 
+
     // Makes pit coordinates depending on room size chosen
     private static final Map<Integer, List<int[]>> pitCoordinates = Map.of(
             4, List.of(new int[]{2, 3}),
-            6, List.of(new int[]{2, 3}, new int[]{4, 6}),
+            6, List.of(new int[]{3, 3}, new int[]{4, 6}),
             8, List.of(new int[]{2, 3}, new int[]{4, 6}, new int[]{2, 7})
     );
 
@@ -20,15 +22,24 @@ public class Dungeon {
     private static final Map<Integer, List<int[]>> maelstromCoordinates = Map.of(
             4, List.of(new int[]{1, 1}),
             6, List.of(new int[]{2, 2}),
-            8, List.of(new int[]{3, 3}, new int[]{5, 5})
+            8, List.of(new int[]{3, 3}, new int[]{4, 5})
     );
 
+    //Makes amarok coordinates depending on the room size chosen.
+    private static final Map<Integer, List<int[]>> amarokCoordinates = Map.of(
+            4, List.of(new int[]{1, 2}),
+            6, List.of(new int[]{2, 3}, new int[]{3, 1}),
+            8, List.of(new int[]{2, 1}, new int[]{5, 5}, new int[]{2, 6})
+    );
+
+    // All rooms get initialized here.
     public Dungeon(int size) {
         this.size = size;
         rooms = new Room[size][size];
         placeEmpty();
         placePits();
         placeMaelstroms();
+        placeAmarok();
         placeFountain();
         placeEntrance();
     }
@@ -165,6 +176,92 @@ public class Dungeon {
         return false;
     }
 
+    // Places amarok rooms.
+    private void placeAmarok() {
+        List<int[]> pits = amarokCoordinates.get(size);
+        if (pits != null) {
+            for (int[] coords : pits) {
+                int row = coords[0];
+                int col = coords[1];
+                if (isInBounds(row, col)) {
+                    rooms[row][col] = new Amarok();
+                } else {
+                    System.out.println(STR."Amarok location out of bounds: \{row}, \{col}");
+                }
+            }
+        }
+    }
+
+    // Checks if player is adjacent to amarok room.
+    public boolean isAdjacentToAmarok(Player player) {
+        int row = player.getRow();
+        int col = player.getCol();
+
+        //Directions: NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST.
+        int[][] directions = {
+                {-1, 0},
+                {-1, 1},
+                {0, 1},
+                {1, 1},
+                {1, 0},
+                {1, -1},
+                {0, -1},
+                {-1,-1},
+        };
+
+        //Checks all adjacent rooms.
+        for (int[] direction : directions) {
+            int newRow = row + direction[0];
+            int newCol = col + direction[1];
+
+            //Checks if coordinates are in bounds.
+            if (isInBounds(newRow, newCol)) {
+                Room adjacentRoom = rooms[newRow][newCol];
+                if (adjacentRoom != null && adjacentRoom.getRoomType() == RoomType.AMAROK) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Checks if player is adjacent to danger.
+    public int isAdjacent(Player player) {
+        int row = player.getRow();
+        int col = player.getCol();
+
+        //Directions: NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST.
+        int[][] directions = {
+                {-1, 0},
+                {-1, 1},
+                {0, 1},
+                {1, 1},
+                {1, 0},
+                {1, -1},
+                {0, -1},
+                {-1,-1},
+        };
+
+        //Checks all adjacent rooms.
+        for (int[] direction : directions) {
+            int newRow = row + direction[0];
+            int newCol = col + direction[1];
+
+            //Checks if coordinates are in bounds.
+            if (isInBounds(newRow, newCol)) {
+                Room adjacentRoom = rooms[newRow][newCol];
+                if (adjacentRoom != null && adjacentRoom.getRoomType() == RoomType.AMAROK) {
+                    return 1;
+                } else if (adjacentRoom.getRoomType() == RoomType.MAELSTROM) {
+                    return 2;
+                } else if (adjacentRoom.getRoomType() == RoomType.PIT) {
+                    return 3;
+                }
+            }
+        }
+        return 0;
+    }
+
     // Places player a specific amount row and col away.
     private void displacePlayer(Player player, int rowShift, int colShift) {
         int newRow = clamp(player.getRow() + rowShift, 0, size - 1);
@@ -181,10 +278,75 @@ public class Dungeon {
         rooms[newRow][newRow] = new Maelstrom(); //Places new maelstrom room.
     }
 
+    // Prints the whole map.
+    public void printRooms() {
+        System.out.println("Dungeon layout:");
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                Room room = rooms[i][j];
+                if (room == null) {
+                    System.out.println(" ? ");
+                    continue;
+                }
+
+                switch (room.getRoomType()) {
+                    case ENTRANCE -> System.out.print(" E ");
+                    case FOUNTAIN -> System.out.print(" F ");
+                    case PIT -> System.out.print(" P ");
+                    case MAELSTROM -> System.out.print(" M ");
+                    case AMAROK -> System.out.print(" A ");
+                    case EMPTY -> System.out.print(" . ");
+                    default -> System.out.print(" ? ");
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    public void shootArrows(Player player, Direction direction) {
+        if (!player.hasArrows()) {
+            System.out.println("You're out of arrows!");
+            return;
+        }
+
+        int targetRow = player.getRow();
+        int targetCol = player.getCol();
+
+        switch (direction) {
+            case NORTH -> targetRow -= 1;
+            case SOUTH -> targetRow += 1;
+            case EAST -> targetCol += 1;
+            case WEST -> targetCol -= 1;
+        }
+
+        if (!isInBounds(targetRow, targetCol)) {
+            System.out.println("You shot a wall and broke your arrow.");
+            player.decreaseArrows();
+            return;
+        }
+
+        Room targetRoom = rooms[targetRow][targetCol];
+        if (targetRoom.getRoomType() == RoomType.AMAROK || targetRoom.getRoomType() == RoomType.MAELSTROM) {
+            System.out.println("You hear a shriek from the darkness. A monster has been slain!");
+            rooms[targetRow][targetCol] = new Room(RoomType.EMPTY, "");// Changes room to empty room.
+        } else {
+            System.out.println("The arrow has shattered uselessly.");
+        }
+
+        player.decreaseArrows();
+    }
+
     // Checks if room is in bounds of grid.
-    private boolean isInBounds(int row, int col) {
+    public boolean isInBounds(int row, int col) {
 
         return row >= 0 && row < size && col >= 0 && col < size;
+    }
+
+    public Room getRoom(int row, int col) {
+        if (isInBounds(row, col)) {
+            return rooms[row][col];
+        }
+        return null;
     }
 
     // Checks if player hits boundary of map.
@@ -202,20 +364,68 @@ public class Dungeon {
         return legal;
     }
 
+    public void logBook(String logIn) {
+        switch (logIn) {
+            case "pits" -> System.out.println("Look out for pits. You will feel a breeze if a pit is in an adjacent room. If you enter a room with a pit, you will die.");
+            case "maelstroms" -> System.out.println("Maelstroms are violent forces of sentient wind. Entering a room with one could transport you to any other location" +
+                    "in the caverns. You will be able to hear their growling and groaning in nearby rooms.");
+            case "amaroks" -> System.out.println("Amaroks roam the" +
+                    " caverns. Encountering one is certain death, but you can smell their rotten stench in nearby rooms.");
+        }
+    }
+
+    public void help() {
+        System.out.println("The possible commands are:");
+        System.out.println("Movement: north, south, east, west.");
+        System.out.println("Actions: shoot, log, activate(to activate fountain).");
+    }
+
+    // Checks if the player hits an amarok or maelstrom.
+    public boolean detectArrowDirection(Player player) {
+        int row = player.getRow();
+        int col = player.getCol();
+
+        int[][] directions = {
+                {-1, 0},
+                {0, 1},
+                {1, 0},
+                {0, -1},
+        };
+
+        for (int[] direction : directions) {
+            int newRow = row + direction[0];
+            int newCol = col + direction[1];
+
+            //Checks if coordinates are in bounds.
+            if (isInBounds(newRow, newCol)) {
+                Room adjacentRoom = rooms[newRow][newCol];
+                if (adjacentRoom != null) {
+                    if (adjacentRoom.getRoomType() == RoomType.AMAROK || adjacentRoom.getRoomType() == RoomType.MAELSTROM)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // This triggers before the player can act and is mostly used for detection.
     void preAct(Player player) {
         System.out.println("-------------------------------------------------------------------------------");
-        System.out.println(STR."You are in the room at (Row=\{player.getRow()}, Column=\{player.getCol()})");
+        System.out.println(STR."You are in the room at (Row=\{player.getRow()}, Column=\{player.getCol()}) and have \{player.getArrows()} left");
 
-        if (isAdjacentToMaelstrom(player)) {
-            System.out.println("You hear the growling and groaning of a maelstrom nearby.");
+        int adjacent = isAdjacent(player);
+
+        // Prints the adjacent room dialogue.
+        switch (adjacent) {
+            case 1 -> System.out.println("You hear the growling and groaning of a maelstrom nearby.");
+            case 2 -> System.out.println("you smell the rotting stench of an amarok nearby.");
+            case 3 -> System.out.println("You feel a draft. There is a pit in a nearby room.");
         }
 
-        if (isAdjacentToPit(player)) {
-            System.out.println("You feel a draft. There is a pit in a nearby room.");
-        }
         rooms[player.getRow()][player.getCol()].visit();
     }
 
+    // This triggers after the player acted and is usually used for game overs.
     boolean postAct(Player player) {
         Room currentRoom = getCurrentRoom(player);
 
@@ -229,6 +439,11 @@ public class Dungeon {
             moveMaelstromFrom(player.getRow(), player.getCol(), 1, -2);
 
             return false; //Doesn't end the game.
+        }
+
+        if (currentRoom.getRoomType() == RoomType.AMAROK) {
+            System.out.println("you have been caught by an amarok and died");
+            return true;
         }
 
         if (currentRoom.getRoomType() == RoomType.PIT) {
@@ -248,12 +463,14 @@ public class Dungeon {
         int row = player.getRow();
         int col = player.getCol();
 
+        Room room = rooms[row][col];
+
         if (!isInBounds(row, col)) {
             System.err.println("ERROR: Player out of bounds at (" + row + ", " + col + ")");
             return null;
         }
 
-        Room room = rooms[row][col];
+
         if (room == null) {
             System.err.println("ERROR: Room at (" + row + ", " + col + ") is null.");
         }

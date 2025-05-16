@@ -6,6 +6,8 @@ public class Main {
         Student s1 = new Student("sam", "12351");
         Student s2 = new Student("kaas", "315");
         Student s3 = new Student("ham", "2389");
+
+        t1.setMail("appel");
         Calculator c1 = new Calculator();
 
         int result = c1.add(10,1);
