@@ -1,5 +1,7 @@
 package Fountain_of_items;
 
+import Utilities.Colors;
+
 import java.util.Scanner;
 
 public class Player {
@@ -43,8 +45,18 @@ public class Player {
         this.playerCol = col;
     }
 
+    public int roomSize(Scanner input) {
+        System.out.println("-------------------------------------------------------------------------------");
+        System.out.print("How large do you want the cave to be(small, medium, big)? ");
+        return switch (input.nextLine().toLowerCase()) {
+            case "medium" -> 6;
+            case "big" -> 8;
+            default -> 4;
+        };
+    }
+
     boolean act(Dungeon dungeon, Scanner input) {
-        System.out.print("What do you want to do? ");
+        System.out.print(Colors.color("What do you want to do? ",Colors.YELLOW));
 
         Room currentRoom = dungeon.getCurrentRoom(this);
 
@@ -66,8 +78,10 @@ public class Player {
         } else if (act.equals("help")) {
             dungeon.help();
         } else if (act.startsWith("shoot ")) {
-            if (!hasArrows()) {
-                System.out.println("You're out of arrows!");
+            if (!dungeon.isArmedChallangeEnabled()) {
+                System.out.println(Colors.color("The armed challange is turned off.", Colors.RED));
+            } else if (!hasArrows()) {
+                System.out.println(Colors.color("You're out of arrows!", Colors.RED));
             } else {
                 String dirString = act.substring(6).trim().toUpperCase();
                 try {
@@ -84,7 +98,7 @@ public class Player {
                 fountainRoom.activate();
             }
         } else if (act.equals("quit")) {
-            System.out.println("quiting game...");
+            System.out.println(Colors.color("quiting game...", Colors.RED));
             return true;
         }
         return false;

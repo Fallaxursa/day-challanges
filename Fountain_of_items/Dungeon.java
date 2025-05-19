@@ -1,14 +1,21 @@
 package Fountain_of_items;
 
-import java.util.Arrays;
+import Utilities.Colors;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import static java.lang.Math.clamp;
 
 public class Dungeon {
     Room[][] rooms;
     int size;
+
+    private boolean pitsChallange = false;
+    private boolean maelstromChallange = false;
+    private boolean amarokChallange = false;
+    private boolean armedChallange = false;
 
 
     // Makes pit coordinates depending on room size chosen
@@ -37,9 +44,15 @@ public class Dungeon {
         this.size = size;
         rooms = new Room[size][size];
         placeEmpty();
-        placePits();
-        placeMaelstroms();
-        placeAmarok();
+        if (isPitsChallangeEnabled()) {
+            placePits();
+        }
+        if (isMaelstromChallangeEnabled()) {
+            placeMaelstroms();
+        }
+        if (isAmarokChallangeEnabled()) {
+            placeAmarok();
+        }
         placeFountain();
         placeEntrance();
     }
@@ -73,38 +86,6 @@ public class Dungeon {
                 }
             }
         }
-    }
-
-    public boolean isAdjacentToPit(Player player) {
-        int row = player.getRow();
-        int col = player.getCol();
-
-        //Directions: NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST.
-        int[][] directions = {
-                {-1, 0},
-                {-1, 1},
-                {0, 1},
-                {1, 1},
-                {1, 0},
-                {1, -1},
-                {0, -1},
-                {-1,-1},
-        };
-
-        //Checks all adjacent rooms.
-        for (int[] direction : directions) {
-            int newRow = row + direction[0];
-            int newCol = col + direction[1];
-
-            //Checks if coordinates are in bounds.
-            if (isInBounds(newRow, newCol)) {
-                Room adjacentRoom = rooms[newRow][newCol];
-                if (adjacentRoom != null && adjacentRoom.getRoomType() == RoomType.PIT) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     // Decides and places fountain on map.
@@ -143,39 +124,6 @@ public class Dungeon {
         }
     }
 
-    // Checks if player is adjacent to maelstrom room.
-    public boolean isAdjacentToMaelstrom(Player player) {
-        int row = player.getRow();
-        int col = player.getCol();
-
-        //Directions: NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST.
-        int[][] directions = {
-                {-1, 0},
-                {-1, 1},
-                {0, 1},
-                {1, 1},
-                {1, 0},
-                {1, -1},
-                {0, -1},
-                {-1,-1},
-        };
-
-        //Checks all adjacent rooms.
-        for (int[] direction : directions) {
-            int newRow = row + direction[0];
-            int newCol = col + direction[1];
-
-            //Checks if coordinates are in bounds.
-            if (isInBounds(newRow, newCol)) {
-                Room adjacentRoom = rooms[newRow][newCol];
-                if (adjacentRoom != null && adjacentRoom.getRoomType() == RoomType.MAELSTROM) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     // Places amarok rooms.
     private void placeAmarok() {
         List<int[]> pits = amarokCoordinates.get(size);
@@ -190,39 +138,6 @@ public class Dungeon {
                 }
             }
         }
-    }
-
-    // Checks if player is adjacent to amarok room.
-    public boolean isAdjacentToAmarok(Player player) {
-        int row = player.getRow();
-        int col = player.getCol();
-
-        //Directions: NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST.
-        int[][] directions = {
-                {-1, 0},
-                {-1, 1},
-                {0, 1},
-                {1, 1},
-                {1, 0},
-                {1, -1},
-                {0, -1},
-                {-1,-1},
-        };
-
-        //Checks all adjacent rooms.
-        for (int[] direction : directions) {
-            int newRow = row + direction[0];
-            int newCol = col + direction[1];
-
-            //Checks if coordinates are in bounds.
-            if (isInBounds(newRow, newCol)) {
-                Room adjacentRoom = rooms[newRow][newCol];
-                if (adjacentRoom != null && adjacentRoom.getRoomType() == RoomType.AMAROK) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     // Checks if player is adjacent to danger.
@@ -303,9 +218,10 @@ public class Dungeon {
         }
     }
 
+    // Handles shooting.
     public void shootArrows(Player player, Direction direction) {
         if (!player.hasArrows()) {
-            System.out.println("You're out of arrows!");
+            System.out.println(Colors.color("You're out of arrows!", Colors.RED));
             return;
         }
 
@@ -320,17 +236,17 @@ public class Dungeon {
         }
 
         if (!isInBounds(targetRow, targetCol)) {
-            System.out.println("You shot a wall and broke your arrow.");
+            System.out.println(Colors.color("You shot a wall and broke your arrow.", Colors.RED));
             player.decreaseArrows();
             return;
         }
 
         Room targetRoom = rooms[targetRow][targetCol];
         if (targetRoom.getRoomType() == RoomType.AMAROK || targetRoom.getRoomType() == RoomType.MAELSTROM) {
-            System.out.println("You hear a shriek from the darkness. A monster has been slain!");
+            System.out.println(Colors.color("You hear a shriek from the darkness. A monster has been slain!", Colors.GREEN));
             rooms[targetRow][targetCol] = new Room(RoomType.EMPTY, "");// Changes room to empty room.
         } else {
-            System.out.println("The arrow has shattered uselessly.");
+            System.out.println(Colors.color("The arrow has shattered uselessly.", Colors.RED));
         }
 
         player.decreaseArrows();
@@ -340,13 +256,6 @@ public class Dungeon {
     public boolean isInBounds(int row, int col) {
 
         return row >= 0 && row < size && col >= 0 && col < size;
-    }
-
-    public Room getRoom(int row, int col) {
-        if (isInBounds(row, col)) {
-            return rooms[row][col];
-        }
-        return null;
     }
 
     // Checks if player hits boundary of map.
@@ -359,7 +268,7 @@ public class Dungeon {
         };
 
         if (!legal)
-            System.out.println("You can't continue this way");
+            System.out.println(Colors.color("You can't continue this way",Colors.RED));
 
         return legal;
     }
@@ -375,37 +284,41 @@ public class Dungeon {
     }
 
     public void help() {
-        System.out.println("The possible commands are:");
-        System.out.println("Movement: north, south, east, west.");
-        System.out.println("Actions: shoot, log, activate(to activate fountain).");
+        System.out.println("Available commands:");
+        System.out.println("- north, south, east, west: move in a direction");
+        System.out.println("- shoot <direction>: shoot an rrow in a direction (if you have arrows and the armed challange is on)");
+        System.out.println("- activate: activate the Fountain of Objects");
+        System.out.println("- log: read the lore about pits, maelstoms, amaroks");
+        System.out.println("- help: display this help message");
+        System.out.println("- quit: exit the game");
     }
 
-    // Checks if the player hits an amarok or maelstrom.
-    public boolean detectArrowDirection(Player player) {
-        int row = player.getRow();
-        int col = player.getCol();
+    public void start(Scanner input) {
+        System.out.println(Colors.color("You enter the Cavern of Objects, a maze of rooms filled with dangerous pits in search of the Fountain of Objects.", Colors.MAGENTA));
+        System.out.println(Colors.color("Light is visible only in the entrance, and no other light is seen anywhere in the caverns.", Colors.MAGENTA));
+        System.out.println(Colors.color("You must navigate the Caverns with your other senses.", Colors.MAGENTA));
+        System.out.println(Colors.color("Find the Fountain of Objects, activate it, and return to the entrance.", Colors.MAGENTA));
 
-        int[][] directions = {
-                {-1, 0},
-                {0, 1},
-                {1, 0},
-                {0, -1},
-        };
+        System.out.println(Colors.color("What challanges do you want to enable?", Colors.YELLOW));
+        System.out.println(Colors.color("Type yes or no for each challange", Colors.BLUE));
 
-        for (int[] direction : directions) {
-            int newRow = row + direction[0];
-            int newCol = col + direction[1];
+        System.out.println("Enable pits? ");
+        setPitsChallange(input.nextLine().trim().equalsIgnoreCase("yes"));
 
-            //Checks if coordinates are in bounds.
-            if (isInBounds(newRow, newCol)) {
-                Room adjacentRoom = rooms[newRow][newCol];
-                if (adjacentRoom != null) {
-                    if (adjacentRoom.getRoomType() == RoomType.AMAROK || adjacentRoom.getRoomType() == RoomType.MAELSTROM)
-                        return true;
-                }
-            }
-        }
-        return false;
+        System.out.println("Enable maelstroms? ");
+        setMaelstromChallange(input.nextLine().trim().equalsIgnoreCase("yes"));
+
+        System.out.println("Enable amaroks? ");
+        setAmarokChallange(input.nextLine().trim().equalsIgnoreCase("yes"));
+
+        System.out.println("Enable getting armed? ");
+        setArmedChallange(input.nextLine().trim().equalsIgnoreCase("yes"));
+
+        System.out.println("Challanges enabled:");
+        if (isPitsChallangeEnabled()) System.out.println(" Look out for pits. You will feel a breeze if a pit is in an adjacent room. If you enter a room with a pit, you will die.");
+        if (isMaelstromChallangeEnabled()) System.out.println("Maelstroms are violent forces of sentient wind. Entering a room with one could transport you to any other location in the caverns. You will be able to hear their growling and groaning in nearby rooms.");
+        if (isAmarokChallangeEnabled()) System.out.println("Amaroks roam the caverns. Encountering one is certain death, but you can smell their rotten stench in nearby rooms");
+        if (isArmedChallangeEnabled()) System.out.println("You carry with you a bow and a quiver of arrows. You can use them to shoot monsters in the caverns but be warned: you have a limited supply.");
     }
 
     // This triggers before the player can act and is mostly used for detection.
@@ -430,7 +343,7 @@ public class Dungeon {
         Room currentRoom = getCurrentRoom(player);
 
         if (currentRoom.getRoomType() == RoomType.MAELSTROM) {
-            System.out.println("You were swept up by a maelstrom!");
+            System.out.println(Colors.color("You were swept up by a maelstrom!", Colors.YELLOW));
 
             //Automatically moves player .
             displacePlayer(player, -1, 2);
@@ -442,22 +355,40 @@ public class Dungeon {
         }
 
         if (currentRoom.getRoomType() == RoomType.AMAROK) {
-            System.out.println("you have been caught by an amarok and died");
+            System.out.println(Colors.color("you have been caught by an amarok and died", Colors.RED));
             return true;
         }
 
         if (currentRoom.getRoomType() == RoomType.PIT) {
-            System.out.println("You have fallen in a pit and died");
+            System.out.println(Colors.color("You have fallen in a pit and died", Colors.RED));
             return true;
         }
 
         if (currentRoom.getRoomType() == RoomType.ENTRANCE && Fountain.isActivated()) { //Win condition
-            System.out.println("You successfully reactivated the fountain and made your way out!!");
+            System.out.println(Colors.color("You successfully reactivated the fountain and made your way out!!", Colors.CYAN));
             return true;
         }
 
         return false;
     }
+
+    public void setArmedChallange(boolean armedChallange) {
+        this.armedChallange = armedChallange;
+    }
+    public void setAmarokChallange(boolean amarokChallange) {
+        this.amarokChallange = amarokChallange;
+    }
+    public void setMaelstromChallange(boolean maelstromChallange) {
+        this.maelstromChallange = maelstromChallange;
+    }
+    public void setPitsChallange(boolean pitsChallange) {
+        this.pitsChallange = pitsChallange;
+    }
+
+    public boolean isPitsChallangeEnabled() { return pitsChallange; }
+    public boolean isMaelstromChallangeEnabled() { return  maelstromChallange; }
+    public boolean isAmarokChallangeEnabled() { return  amarokChallange; }
+    public boolean isArmedChallangeEnabled() { return armedChallange; }
 
     Room getCurrentRoom(Player player) {
         int row = player.getRow();
@@ -476,6 +407,5 @@ public class Dungeon {
         }
 
         return room;
-//        return rooms[player.getRow()][player.getCol()];
     }
 }
