@@ -47,7 +47,7 @@ public class Player {
 
     public int roomSize(Scanner input) {
         System.out.println("-------------------------------------------------------------------------------");
-        System.out.print("How large do you want the cave to be(small, medium, big)? ");
+        System.out.print(Colors.color("How large do you want the cave to be(small, medium, big)? ", Colors.YELLOW));
         return switch (input.nextLine().toLowerCase()) {
             case "medium" -> 6;
             case "big" -> 8;
@@ -71,7 +71,7 @@ public class Player {
         }
 
         if (act.equals("log")) {
-            System.out.println("What page do you want to read? ");
+            System.out.println(Colors.color("What page do you want to read? ", Colors.YELLOW));
             System.out.println("pits, maelstroms, amaroks.");
             String logIn = input.nextLine();
             dungeon.logBook(logIn);
@@ -94,7 +94,6 @@ public class Player {
         } else if (act.equals("activate")) {
             if (currentRoom.getRoomType() == RoomType.FOUNTAIN) {
                 Fountain fountainRoom = (Fountain) currentRoom;
-
                 fountainRoom.activate();
             }
         } else if (act.equals("quit")) {

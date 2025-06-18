@@ -8,15 +8,22 @@ public class Old_robot_day34 {
         Scanner scanner = new Scanner(System.in);
 
 
-        for (int i = 0; i < 3; i++) {
-            System.out.println("The robot power switch is " + robot.isPowered() + " and is on y: " + robot.getY() + " and x: " + robot.getX());
-            System.out.println("Enter command (on/off/north/east/south/west): ");
+        while (true) {
+            System.out.println("The robot power switch is: " + robot.isPowered() + " \nPosition (X: " + robot.getX() + ", y: " + robot.getY() + ")");
+            System.out.println("Enter command (on/off/north/east/south/west), or 'stop' to execute: ");
             String input = scanner.nextLine().trim().toLowerCase();
 
+            if (input.equals("stop")) break;
+
             RobotCommand command = createCommand(input);
-            robot.getCommands()[i] = command;
+            if (command != null) {
+                robot.addCommand(command);
+            } else {
+                System.out.println("Invalid command. Try again!");
+            }
         }
 
+        System.out.println("Executing comaaaaands!");
         robot.run();
         scanner.close();
     }
@@ -29,6 +36,7 @@ public class Old_robot_day34 {
             case "east": return new EastCommand();
             case "south": return new SouthCommand();
             case "west": return new WestCommand();
+
             default: return null;
         }
     }

@@ -1,42 +1,53 @@
 package Manticore_Game;
 
+import java.util.Random;
 import java.util.Scanner;
 
 public class Logic {
-
+    Scanner input = new Scanner(System.in);
+    Random random = new Random();
     private int manticoreHealth = 10;
     private int cityHealth = 15;
     private int round = 1;
     private int manticoreDistance;
 
+    // Getters.
     public int getManticoreDistance() { return manticoreDistance; }
-
     public int getManticoreHealth() {
         return manticoreHealth;
     }
-
-    public void setManticoreHealth(int manticoreHealth) {
-        this.manticoreHealth = manticoreHealth;
-    }
-
     public int getCityHealth() {
         return cityHealth;
     }
-
-    public void setCityHealth(int cityHealth) {
-        this.cityHealth = cityHealth;
-    }
-
     public int getRound() {
         return round;
     }
 
+    // Setters.
+    public void setManticoreHealth(int manticoreHealth) {
+        this.manticoreHealth = manticoreHealth;
+    }
+    public void setCityHealth(int cityHealth) {
+        this.cityHealth = cityHealth;
+    }
     public void setRound(int round) {
         this.round = round;
     }
 
     public void initializeManticoreDistance() {
         this.manticoreDistance = askForNumberInRange("How far away is the manticore", 0, 100);
+    }
+
+    public void start() {
+        System.out.print("Do you want the manticore to be random?: ");
+        String random = input.nextLine().trim().toLowerCase();
+        if (random.equalsIgnoreCase("yes")) {
+            System.out.println("YEEEEEEEEEEEEES");
+            this.manticoreDistance = (int)(Math.random() * 101);
+        } else {
+            System.out.println("NOOOOOO");
+            initializeManticoreDistance();
+        }
     }
 
     public boolean preAct() {
@@ -52,7 +63,6 @@ public class Logic {
     }
 
     public void act() {
-
         cannonResult();
     }
 

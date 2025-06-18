@@ -2,6 +2,8 @@ package Fountain_of_items;
 
 import Utilities.Colors;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -44,6 +46,7 @@ public class Dungeon {
         this.size = size;
         rooms = new Room[size][size];
         placeEmpty();
+
         if (isPitsChallangeEnabled()) {
             placePits();
         }
@@ -53,6 +56,7 @@ public class Dungeon {
         if (isAmarokChallangeEnabled()) {
             placeAmarok();
         }
+
         placeFountain();
         placeEntrance();
     }
@@ -324,7 +328,10 @@ public class Dungeon {
     // This triggers before the player can act and is mostly used for detection.
     void preAct(Player player) {
         System.out.println("-------------------------------------------------------------------------------");
-        System.out.println(STR."You are in the room at (Row=\{player.getRow()}, Column=\{player.getCol()}) and have \{player.getArrows()} left");
+        System.out.println(STR."You are in the room at (Row=\{player.getRow()}, Column=\{player.getCol()})");
+        if (armedChallange) {
+            System.out.print(STR."and have \{player.getArrows()} arrows left ");
+        }
 
         int adjacent = isAdjacent(player);
 
