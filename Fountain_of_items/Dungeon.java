@@ -94,22 +94,19 @@ public class Dungeon {
 
     // Decides and places fountain on map.
     private void placeFountain() {
-        int fountainRow = 0, fountainCol = 0;
-        int pitRow, pitCol;
 
         // Decides where the fountain goes for each size
         switch (size) {
             case 4 -> {
-                fountainRow = 0; fountainCol = 2;
+                rooms[0][2] = new Fountain();
             }
             case 6 -> {
-                fountainRow = 3; fountainCol = 5;
+                rooms[3][5] = new Fountain();
             }
             case 8 -> {
-                fountainRow = 4; fountainCol = 5;
+                rooms[4][5] = new Fountain();
             }
         }
-        rooms[fountainRow][fountainCol] = new Fountain();
     }
 
     // Places maelstroms on map.
@@ -194,7 +191,7 @@ public class Dungeon {
         int newRow = clamp(row + rowShift, 0, size - 1);
         int newCol = clamp(col + colShift, 0, size - 1);
         rooms[row][col] = new Room(RoomType.EMPTY, ""); // Clears old maelstrom room.
-        rooms[newRow][newRow] = new Maelstrom(); //Places new maelstrom room.
+        rooms[newRow][newCol] = new Maelstrom(); //Places new maelstrom room.
     }
 
     // Prints the whole map.
